@@ -621,6 +621,10 @@ function renderChatSwitcher() {
   elements.chatSwitcherToggle.setAttribute("aria-label", isCollapsed ? "Show chat list" : "Hide chat list");
   elements.chatSwitcherToggle.setAttribute("title", isCollapsed ? "Show chat list" : "Hide chat list");
 
+  if (!elements.chatSwitcherSummary) {
+    return;
+  }
+
   if (!activeConversation) {
     elements.chatSwitcherSummary.textContent = state.conversations.length === 0
       ? "Create a chat to start the local thread."
