@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>me_workspace</title>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <div class="panel brand-panel">
+        <h1>me_workspace</h1>
+        <p id="app-summary" class="muted">Local assistant shell</p>
+      </div>
+
+      <div class="panel explorer-panel">
+        <div class="panel-section">
+          <h2>Explorer</h2>
+          <p class="muted">Journals and approved files live here so the workspace structure stays on the left.</p>
+        </div>
+
+        <div class="panel-section">
+          <h3>Journals</h3>
+          <p class="muted">Pick one journal to keep a chat, its context, and its saved logs moving together.</p>
+          <form id="journal-form" class="memory-form">
+            <label class="composer-label" for="journal-title-input">Title</label>
+            <input id="journal-title-input" type="text" placeholder="Session notes" required>
+            <label class="composer-label" for="journal-summary-input">Summary</label>
+            <textarea id="journal-summary-input" rows="3" placeholder="Short focus for this journal entry."></textarea>
+            <div class="memory-actions">
+              <button type="submit">Create Journal</button>
+            </div>
+          </form>
+          <div id="journal-list" class="journal-list"></div>
+        </div>
+
+        <div class="panel-section">
+          <h3>Files</h3>
+          <p class="muted">Approved folders are read-only and can still be attached to the next chat message.</p>
+          <div id="file-tree" class="file-tree"></div>
+        </div>
+
+        <details class="panel utility-panel">
+          <summary>System Status</summary>
+          <p id="context-summary" class="muted">Loading system flow...</p>
+          <div id="connection-list" class="connection-list"></div>
+        </details>
+
+        <details class="panel utility-panel">
+          <summary>Saved Memory</summary>
+          <form id="memory-form" class="memory-form">
+            <label class="composer-label" for="memory-key-input">Key</label>
+            <input id="memory-key-input" type="text" placeholder="mode" required>
+            <label class="composer-label" for="memory-content-input">Content</label>
+            <textarea id="memory-content-input" rows="4" placeholder="Store a fact or instruction the assistant should remember." required></textarea>
+            <label class="memory-checkbox-row" for="memory-pinned-input">
+              <input id="memory-pinned-input" type="checkbox" checked>
+              <span>Pinned into assistant context</span>
+            </label>
+            <div class="memory-actions">
+              <button id="memory-save-button" type="submit">Save Memory</button>
+              <button id="memory-cancel-button" type="button" class="secondary-button hidden">Cancel Edit</button>
+            </div>
+          </form>
+          <div id="memory-list" class="memory-list"></div>
+        </details>
+
+        <p class="muted explorer-note">Reordering child items or changing their hierarchy is not supported yet in this pass.</p>
+      </div>
+
+      <div class="panel outline-panel">
+        <h2>Outline</h2>
+        <p id="document-outline-meta" class="muted">Select a journal or file to see headings and anchors here.</p>
+        <div id="document-outline" class="document-outline"></div>
+      </div>
+    </aside>
+
+    <section class="document-pane">
+      <div class="panel document-panel">
+        <div class="document-header">
+          <div>
+            <p id="document-kind" class="document-kind">Document</p>
+            <h2 id="document-title">Select a journal or file</h2>
+            <p id="document-subtitle" class="muted">The main document will appear here so the middle pane stays focused on the content itself.</p>
+          </div>
+        </div>
+        <div id="document-view" class="document-view"></div>
+      </div>
+    </section>
+
+    <aside class="chat-pane">
+      <div id="chat-switcher-panel" class="panel chat-list-panel">
+        <div class="chat-switcher-header">
+          <h2>Chats</h2>
+          <button id="chat-switcher-toggle" type="button" class="chat-switcher-toggle" aria-label="Hide chat list" title="Hide chat list">Hide</button>
+        </div>
+        <div id="conversation-list" class="conversation-list"></div>
+      </div>
+
+      <section class="panel message-thread-panel">
+        <div class="panel-header chat-header-panel">
+          <div>
+            <h2 id="chat-title">Select or create a chat</h2>
+            <p id="chat-journal-context" class="muted">Messages stay local and are stored in SQLite.</p>
+          </div>
+        </div>
+        <div id="message-list" class="message-list"></div>
+      </section>
+
+      <form id="chat-form" class="panel composer">
+        <p id="composer-drop-hint" class="muted hidden">Drop file to attach it to this message.</p>
+        <p id="composer-context-status" class="muted">Journal context is resolved right before send.</p>
+        <div id="attached-files" class="attached-files"></div>
+        <textarea id="message-input" rows="4" placeholder="Type here, or use dictation." required></textarea>
+        <div class="composer-actions">
+          <button id="new-chat-button" type="button" class="secondary-button">New Chat</button>
+          <button id="voice-draft-button" type="button" class="secondary-button">Dictation</button>
+          <button type="submit">Send</button>
+        </div>
+      </form>
+    </aside>
+  </main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
