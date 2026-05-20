@@ -12,11 +12,21 @@ const state = {
   fileTree: [],
   chatListCollapsed: false,
   dictationActive: false,
+  dictationAudioContext: null,
+  dictationAudioProcessor: null,
+  dictationAudioSource: null,
   dictationFinalText: "",
+  dictationForceNextSync: false,
+  dictationLastSyncedSampleCount: 0,
   dictationMediaRecorder: null,
+  dictationPcmChunks: [],
   dictationRecognition: null,
+  dictationSampleRate: 0,
   dictationSessionId: null,
   dictationSeedText: "",
+  dictationSyncInFlight: false,
+  dictationSyncRequested: false,
+  dictationSyncTimer: null,
   dictationStopping: false,
   dictationStream: null,
   journalDetailCache: {},
@@ -111,9 +121,38 @@ function mergeDictationText(baseText, ...segments) {
 }
 
 function updateVoiceDraftButton() {
-  elements.voiceDraftButton.textContent = state.dictationActive ? "Stop" : "Dictation";
+  elements.voiceDraftButton.textContent = state.dictationActive ? "Recording" : "Dictation";
   elements.voiceDraftButton.setAttribute("title", state.dictationActive ? "Stop dictation" : "Start dictation");
   elements.voiceDraftButton.setAttribute("aria-label", state.dictationActive ? "Stop dictation" : "Start dictation");
+  elements.voiceDraftButton.classList.toggle("recording", state.dictationActive);
+}
+
+function describeDictationError(error) {
+  if (!error) {
+    return "unknown error";
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (error.name === "NotAllowedError" || error.name === "SecurityError") {
+    return "microphone access was blocked";
+  }
+
+  if (error.name === "NotFoundError") {
+    return "no microphone was found";
+  }
+
+  if (error.name === "NotReadableError") {
+    return "the microphone is busy in another app";
+  }
+
+  if (error.message) {
+    return error.message;
+  }
+
+  return "unknown error";
 }
 
 function applyDictationText(currentText, isFinal = false) {
@@ -130,11 +169,36 @@ function applyDictationText(currentText, isFinal = false) {
 
 function resetDictationState() {
   state.dictationActive = false;
+  state.dictationForceNextSync = false;
+  state.dictationLastSyncedSampleCount = 0;
+  if (state.dictationAudioProcessor) {
+    state.dictationAudioProcessor.onaudioprocess = null;
+  }
+  if (state.dictationAudioSource) {
+    state.dictationAudioSource.disconnect();
+  }
+  if (state.dictationAudioProcessor) {
+    state.dictationAudioProcessor.disconnect();
+  }
+  if (state.dictationAudioContext && state.dictationAudioContext.state !== "closed") {
+    state.dictationAudioContext.close().catch(() => {});
+  }
+  state.dictationAudioContext = null;
+  state.dictationAudioProcessor = null;
+  state.dictationAudioSource = null;
   state.dictationFinalText = "";
   state.dictationMediaRecorder = null;
+  state.dictationPcmChunks = [];
   state.dictationRecognition = null;
+  state.dictationSampleRate = 0;
   state.dictationSessionId = null;
   state.dictationSeedText = "";
+  state.dictationSyncInFlight = false;
+  state.dictationSyncRequested = false;
+  if (state.dictationSyncTimer) {
+    window.clearInterval(state.dictationSyncTimer);
+  }
+  state.dictationSyncTimer = null;
   state.dictationStopping = false;
   if (state.dictationStream) {
     for (const track of state.dictationStream.getTracks()) {
@@ -170,69 +234,233 @@ async function appendVoiceChunk(sessionId, audioBlob) {
   return response.json();
 }
 
+function writeAscii(view, offset, value) {
+  for (let index = 0; index < value.length; index += 1) {
+    view.setUint8(offset + index, value.charCodeAt(index));
+  }
+}
+
+function buildWavBlob(chunks, sampleRate) {
+  const totalSampleCount = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const wavBuffer = new ArrayBuffer(44 + (totalSampleCount * 2));
+  const view = new DataView(wavBuffer);
+
+  writeAscii(view, 0, "RIFF");
+  view.setUint32(4, 36 + (totalSampleCount * 2), true);
+  writeAscii(view, 8, "WAVE");
+  writeAscii(view, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeAscii(view, 36, "data");
+  view.setUint32(40, totalSampleCount * 2, true);
+
+  let offset = 44;
+
+  for (const chunk of chunks) {
+    for (let index = 0; index < chunk.length; index += 1) {
+      const sample = Math.max(-1, Math.min(1, chunk[index]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([wavBuffer], { type: "audio/wav" });
+}
+
+function getPcmSampleCount(chunks) {
+  return chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+}
+
+async function flushLocalDictationSync() {
+  if (state.dictationSyncInFlight || !state.dictationSessionId) {
+    return;
+  }
+
+  state.dictationSyncInFlight = true;
+
+  try {
+    while (state.dictationSyncRequested || state.dictationForceNextSync) {
+      const forceSync = state.dictationForceNextSync;
+      state.dictationSyncRequested = false;
+      state.dictationForceNextSync = false;
+
+      const currentSampleCount = getPcmSampleCount(state.dictationPcmChunks);
+      if (currentSampleCount === 0) {
+        continue;
+      }
+
+      if (!forceSync && currentSampleCount <= state.dictationLastSyncedSampleCount) {
+        continue;
+      }
+
+      const audioBlob = buildWavBlob([...state.dictationPcmChunks], state.dictationSampleRate || 16000);
+      if (audioBlob.size <= 44) {
+        continue;
+      }
+
+      const sessionState = await appendVoiceChunk(state.dictationSessionId, audioBlob);
+      state.dictationLastSyncedSampleCount = currentSampleCount;
+      applyDictationText(sessionState.transcript, sessionState.final);
+    }
+  } catch (error) {
+    console.error(error);
+
+    if (!state.dictationStopping) {
+      alert("Local dictation could not refresh the live transcript.");
+    }
+  } finally {
+    state.dictationSyncInFlight = false;
+
+    if ((state.dictationSyncRequested || state.dictationForceNextSync) && state.dictationSessionId) {
+      void flushLocalDictationSync();
+    }
+  }
+}
+
+function requestLocalDictationSync(forceSync = false) {
+  if (!state.dictationSessionId) {
+    return;
+  }
+
+  state.dictationSyncRequested = true;
+  state.dictationForceNextSync = state.dictationForceNextSync || forceSync;
+  void flushLocalDictationSync();
+}
+
 async function startLocalSessionDictation() {
-  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+
+  if (!navigator.mediaDevices?.getUserMedia || !AudioContextCtor) {
     return false;
   }
 
   const session = await startVoiceSession();
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const mimeType = MediaRecorder.isTypeSupported?.("audio/webm;codecs=opus")
-    ? "audio/webm;codecs=opus"
-    : undefined;
-  const recorder = mimeType
-    ? new MediaRecorder(stream, { mimeType })
-    : new MediaRecorder(stream);
+  let stream;
+  let audioContext = null;
+  let source = null;
+  let processor = null;
 
-  state.dictationSessionId = session.sessionId;
-  state.dictationSeedText = elements.messageInput.value.trim();
-  state.dictationFinalText = session.transcript ?? "";
-  state.dictationStream = stream;
-  state.dictationMediaRecorder = recorder;
-  state.dictationStopping = false;
-  state.dictationActive = true;
-  updateVoiceDraftButton();
-  applyDictationText(session.transcript, session.final);
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-  recorder.addEventListener("dataavailable", async (event) => {
-    if (!event.data || event.data.size === 0 || !state.dictationSessionId) {
+    audioContext = new AudioContextCtor();
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+    source = audioContext.createMediaStreamSource(stream);
+    processor = audioContext.createScriptProcessor(4096, 1, 1);
+  } catch (error) {
+    if (processor) {
+      processor.disconnect();
+    }
+    if (source) {
+      source.disconnect();
+    }
+    if (audioContext && audioContext.state !== "closed") {
+      await audioContext.close().catch(() => {});
+    }
+    if (stream) {
+      for (const track of stream.getTracks()) {
+        track.stop();
+      }
+    }
+    try {
+      await stopVoiceSession(session.sessionId);
+    } catch {
+    }
+
+    throw error;
+  }
+  const pcmChunks = [];
+
+  processor.onaudioprocess = (event) => {
+    if (!state.dictationActive || state.dictationStopping) {
       return;
     }
 
-    try {
-      const sessionState = await appendVoiceChunk(state.dictationSessionId, event.data);
-      applyDictationText(sessionState.transcript, sessionState.final);
-    } catch (error) {
-      console.error(error);
-      alert("Local dictation could not process the latest audio chunk.");
+    const channelData = event.inputBuffer.getChannelData(0);
+    pcmChunks.push(new Float32Array(channelData));
+  };
+
+  source.connect(processor);
+  processor.connect(audioContext.destination);
+
+  state.dictationSessionId = session.sessionId;
+  state.dictationSeedText = elements.messageInput.value.trim();
+  state.dictationAudioContext = audioContext;
+  state.dictationAudioProcessor = processor;
+  state.dictationAudioSource = source;
+  state.dictationFinalText = "";
+  state.dictationStream = stream;
+  state.dictationPcmChunks = pcmChunks;
+  state.dictationSampleRate = audioContext.sampleRate;
+  state.dictationLastSyncedSampleCount = 0;
+  state.dictationSyncInFlight = false;
+  state.dictationSyncRequested = false;
+  state.dictationForceNextSync = false;
+  state.dictationSyncTimer = window.setInterval(() => {
+    if (state.dictationActive && !state.dictationStopping) {
+      requestLocalDictationSync();
     }
-  });
-
-  recorder.addEventListener("stop", async () => {
-    const sessionId = state.dictationSessionId;
-
-    try {
-      if (sessionId) {
-        const sessionState = await stopVoiceSession(sessionId);
-        applyDictationText(sessionState.transcript, true);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      resetDictationState();
-      elements.messageInput.focus();
-    }
-  });
-
-  recorder.start(1500);
+  }, 2500);
+  state.dictationStopping = false;
+  state.dictationActive = true;
+  updateVoiceDraftButton();
   return true;
 }
 
-function stopActiveDictation() {
+async function stopLocalSessionDictation() {
+  const sessionId = state.dictationSessionId;
+
+  try {
+    if (state.dictationSyncTimer) {
+      window.clearInterval(state.dictationSyncTimer);
+      state.dictationSyncTimer = null;
+    }
+
+    if (state.dictationAudioProcessor) {
+      state.dictationAudioProcessor.onaudioprocess = null;
+      state.dictationAudioProcessor.disconnect();
+    }
+
+    if (state.dictationAudioSource) {
+      state.dictationAudioSource.disconnect();
+    }
+
+    if (state.dictationAudioContext && state.dictationAudioContext.state !== "closed") {
+      await state.dictationAudioContext.close();
+    }
+
+    if (sessionId) {
+      requestLocalDictationSync(true);
+      await flushLocalDictationSync();
+    }
+
+    if (sessionId) {
+      const sessionState = await stopVoiceSession(sessionId);
+      applyDictationText(sessionState.transcript, true);
+    }
+  } finally {
+    resetDictationState();
+    elements.messageInput.focus();
+  }
+}
+
+async function stopActiveDictation() {
   state.dictationStopping = true;
 
   if (state.dictationMediaRecorder && state.dictationMediaRecorder.state !== "inactive") {
     state.dictationMediaRecorder.stop();
+    return;
+  }
+
+  if (state.dictationAudioContext) {
+    await stopLocalSessionDictation();
     return;
   }
 
@@ -1281,12 +1509,9 @@ async function saveJournalEntry() {
 }
 
 async function loadVoiceDraft() {
-  const transcript = await request("/api/voice/demo-transcript", {
+  return request("/api/voice/demo-transcript", {
     method: "POST",
   });
-
-  elements.messageInput.value = transcript.text;
-  elements.messageInput.focus();
 }
 
 function resetMemoryForm() {
@@ -1409,24 +1634,35 @@ elements.chatSwitcherToggle.addEventListener("click", () => {
 
 elements.voiceDraftButton.addEventListener("click", async () => {
   if (state.dictationActive) {
-    stopActiveDictation();
+    await stopActiveDictation();
     return;
   }
+
+  let localSessionError = null;
 
   try {
     if (await startLocalSessionDictation()) {
       return;
     }
   } catch (error) {
+    localSessionError = error;
     console.error(error);
   }
 
   try {
     if (startBrowserDictation()) {
+      if (localSessionError) {
+        alert(`Local dictation session could not start: ${describeDictationError(localSessionError)}. Using the browser fallback for now.`);
+      }
       return;
     }
 
-    await loadVoiceDraft();
+    const transcript = await loadVoiceDraft();
+    const reason = localSessionError
+      ? `Dictation fallback used because the local dictation session could not start: ${describeDictationError(localSessionError)}.`
+      : "Dictation fallback used because live microphone capture is not available in this browser yet.";
+    elements.messageInput.value = `${reason} ${transcript.text}`.trim();
+    elements.messageInput.focus();
   } catch (error) {
     showError(error);
   }

@@ -688,6 +688,15 @@ button:hover {
   background: #e3e8ee;
 }
 
+#voice-draft-button.recording,
+#voice-draft-button.recording:hover,
+#voice-draft-button.recording:focus-visible {
+  background: #dff3e5 !important;
+  color: #1f5f36 !important;
+  border-color: #9fd0ae !important;
+  box-shadow: inset 0 0 0 1px #9fd0ae;
+}
+
 @media (max-width: 1200px) {
   .app-shell {
     grid-template-columns: 280px minmax(0, 1fr);

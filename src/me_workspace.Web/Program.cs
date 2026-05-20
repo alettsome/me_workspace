@@ -18,6 +18,7 @@ builder.WebHost.UseUrls(builder.Configuration["urls"] ?? "http://127.0.0.1:5078"
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
+builder.Services.Configure<SpeechEngineOptions>(builder.Configuration.GetSection(SpeechEngineOptions.SectionName));
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -36,6 +37,7 @@ builder.Services.AddSingleton<ContextService>();
 builder.Services.AddSingleton<JournalService>();
 builder.Services.AddSingleton<VoiceService>();
 builder.Services.AddSingleton<ILlmClient, LocalLlmClient>();
+builder.Services.AddSingleton<OfflineSpeechEngineRunner>();
 builder.Services.AddSingleton<ISpeechToTextClient, LocalSpeechToTextClient>();
 builder.Services.AddSingleton<IStreamingSpeechToTextClient, LocalStreamingSpeechToTextClient>();
 builder.Services.AddEndpointsApiExplorer();
@@ -58,11 +60,11 @@ using (var scope = app.Services.CreateScope())
 var journalService = app.Services.GetRequiredService<JournalService>();
 journalService.EnsureStorage();
 
-app.MapGet("/api/health", () => Results.Ok(new
+app.MapGet("/api/health", (OfflineSpeechEngineRunner speechEngineRunner) => Results.Ok(new
 {
     status = "ok",
     mode = "offline-local",
-    speech = "local-draft",
+    speech = speechEngineRunner.IsConfigured ? "whispercpp-ready" : "local-session-scaffold",
     llm = "local-adapter"
 }));
 

@@ -76,7 +76,7 @@ try {
 
     $health = Invoke-RestMethod "$BaseUrl/api/health"
     Assert-True ($health.mode -eq "offline-local") "Expected offline-local mode."
-    Assert-True ($health.speech -eq "local-draft") "Expected local-draft speech status."
+    Assert-True (($health.speech -eq "local-session-scaffold") -or ($health.speech -eq "whispercpp-ready")) "Expected local-session-scaffold or whispercpp-ready speech status."
 
     $flow = Invoke-RestMethod "$BaseUrl/api/system/flow"
     Assert-True ($flow.connections.Count -ge 5) "Expected at least five connected feature entries."

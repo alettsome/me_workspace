@@ -1,4 +1,20 @@
-# me_workspace Phases
+# Chat Log
+
+Journal: Current focus
+Conversation: New Chat
+
+## 2026-05-20T02:45:27.7491895Z
+
+Conversation ID: `afdcbcda-78ad-4fb1-8589-560f3327ad45`
+
+### User
+Please confirm the smoke test flow.
+
+### File Context
+- docs/phases.md
+
+### Assistant
+Local assistant pipeline is connected. I received: "Please confirm the smoke test flow.". Context used: recent-messages:1, memory:3, journal:1, files:1. Recent conversation: user: Please confirm the smoke test flow. Pinned memory: me_workspace runs as a local-first assistant shell on 127.0.0.1. | Keep the end-to-end loop wired before improving individual components. | Chats are stored in SQLite under App_Data/me_workspace.db. Journal focus: Current focus | Wire the local pieces together, confirm the flow works, then improve each component in place. Attached files: docs/phases.md: # me_workspace Phases
 
 ## Phase 1
 
@@ -33,12 +49,11 @@ Build reliable voice input.
 - [x] `whisper.cpp`-oriented provider and config shape added to the local speech-engine scaffold
 - [x] local `whisper.cpp` runtime downloaded and wired into the app config
 - [x] browser microphone capture now writes local WAV audio for the offline engine
-- [ ] replace browser microphone capture with native local microphone capture
 - [ ] push-to-talk flow
 - [x] real local speech-to-text worker
 - [x] replace the placeholder local voice session worker with a real offline engine such as `whisper.cpp`
 - [x] long-running dictation that stays active until the user stops it
-- [x] live transcript updates while recording instead of record-first-then-transcribe
+- [ ] live transcript updates while recording instead of record-first-then-transcribe
 - [ ] transcript review before send with a clearer voice workflow
 
 ## Phase 4
@@ -94,67 +109,7 @@ Build the long-form journal workflow.
 - [ ] show recent logs for the selected journal entry in the UI
 - [ ] structure anchors so diff-style tools can update sections safely
 - [ ] feed anchored journal context into chat when relevant
-- [ ] save journal-driven changes back in a predictable format
-- [ ] connect journal outcomes into `ThingsToDo/`
+- [ ] save journal-dri
 
-## Current Focus
+[Preview truncated]
 
-- [x] rename the app to `me_workspace`
-- [x] switch the database file to `App_Data/me_workspace.db`
-- [x] rename the internal web project to `me_workspace.Web`
-- [x] tidy the old `Symphony.Web` leftovers
-- [x] build the first folder-based context view
-- [x] connect selected files into chat context before send
-- [x] create a real folder-based journal structure instead of a stub
-- [x] let a chat stay linked to one journal entry
-- [x] save linked chat logs into `Journals/<entry>/logs/`
-- [x] add a local backend session shape for future offline dictation
-- [x] wire a real local `whisper.cpp` engine into the dictation path
-- [ ] build the first automatic context selector before AI processing
-- [x] replace the current placeholder dictation worker with a real offline local speech engine
-- [ ] define the new-chat rule so a thread automatically adopts or creates its journal and folder structure
-- [ ] define how automatic context chooses files, journal summaries, and recent logs together
-- [ ] define how chat logs, `ThingsToDo`, and journal anchors work together
-- [ ] add a root `README.md` with run and test commands
-
-## Iteration Notes
-
-- [ ] chat should reference the file system for context before the assistant reply is generated
-- [ ] the app should gather likely context automatically when chat is engaged
-- [ ] manual drag-and-drop should stay available, but only as a fallback or explicit override
-- [ ] browser speech recognition should stay only as a temporary fallback, not the long-term offline dictation path
-- [ ] browser microphone capture should also be temporary, and should be replaced by native local microphone capture
-- [ ] the resulting chat and context should be saved into logs
-- [ ] new chat should feel like the start of a real working thread, not a blank isolated container
-- [ ] if the user starts a new chat without an existing linked journal, the workspace should create or resolve the journal and folders automatically
-- [ ] the chat pane should prioritize the thread and composer, while secondary panels such as flow and memory should not crowd the message area
-- [ ] next actions should land in a clear folder-based `ThingsToDo` workflow
-- [ ] journal entries should be anchor-based so later automated diffs can update them safely
-
-## Journal Shape
-
-- [x] root folder: `Journals/`
-- [x] root index: `Journals/index.json`
-- [x] per-entry folder: `Journals/<entry-slug>/`
-- [x] main entry file: `entry.md`
-- [x] metadata file: `meta.json`
-- [x] summary file: `summary.md`
-- [x] linked chat logs: `logs/chat-<conversation-id>.md`
-- [x] optional support folders: `assets/` and `resources/`
-- [ ] searchable metadata fields should grow to include stronger tags and keywords
-- [ ] selected journal should load summary, entry, and recent logs as chat context
-
-## Next Build Slice
-
-- [x] automatic context ranking before send
-- [x] selected journal detail panel with recent logs
-- [ ] task capture into `ThingsToDo/`
-- [ ] journal edit/delete management
-
-## Immediate Next Steps
-
-- [ ] design and build native local microphone capture so the browser is no longer in the audio trust boundary
-- [ ] improve dictation feedback so the composer clearly shows recording, stopping, success, and failure states
-- [x] add live transcript updates while recording instead of only transcribing on stop
-- [ ] write clear chat outcomes into `ThingsToDo/` so each thread can produce follow-up work
-- [ ] define the new-chat rule so a thread automatically adopts or creates its journal and folder structure

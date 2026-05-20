@@ -29,13 +29,13 @@ Reasons:
 
 The preferred direction is:
 
-1. the browser captures microphone audio
-2. audio is streamed to the local ASP.NET Core backend
-3. the backend forwards audio chunks to a local speech worker
+1. a native local microphone component captures audio outside the browser
+2. audio is streamed to the local ASP.NET Core backend or directly into the local speech worker
+3. the backend coordinates the session and transcript state
 4. the speech worker returns interim and final transcript updates
-5. the frontend updates the composer until the session is stopped
+5. the frontend shows transcript updates without owning raw microphone capture
 
-This keeps the UI simple while preserving local control in the backend.
+This keeps the UI simple while moving microphone trust out of the browser.
 
 ## Technology Direction
 
@@ -76,13 +76,26 @@ Each session should expose:
 1. keep the current browser dictation only as a temporary fallback
 2. add backend session contracts for local streaming speech
 3. add a local placeholder worker so the session flow can be tested end to end
-4. replace the placeholder worker with a real offline engine
-5. add clearer listening and transcript state in the composer
+4. add a configurable external local speech-engine adapter in `.NET`
+5. replace the placeholder worker behavior with a real offline engine such as `whisper.cpp`
+6. replace browser microphone capture with a native local microphone path
+7. add clearer listening and transcript state in the composer
+
+## Current Scaffold
+
+The repo now includes:
+
+- a local backend voice session contract
+- a `.NET` external-process speech engine runner
+- configuration fields for a local executable and arguments
+
+This means the next integration step is no longer "invent the backend shape." It is "point the existing backend shape at a real offline engine and refine the transcript workflow."
 
 ## Product Rules
 
 - dictation should remain local by default
 - microphone audio should not be sent to remote services
+- microphone capture should move out of the browser for the long-term privacy-first build
 - the user should control when dictation starts and stops
 - transcript updates should be visible while recording
 - transcript text should remain editable before send

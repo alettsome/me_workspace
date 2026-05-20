@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace me_workspace.Web.Infrastructure.Speech;
 
-public sealed class LocalStreamingSpeechToTextClient : IStreamingSpeechToTextClient
+public sealed class LocalStreamingSpeechToTextClient(OfflineSpeechEngineRunner speechEngineRunner) : IStreamingSpeechToTextClient
 {
     private readonly ConcurrentDictionary<Guid, LocalSpeechSession> sessions = new();
 
@@ -13,7 +13,7 @@ public sealed class LocalStreamingSpeechToTextClient : IStreamingSpeechToTextCli
         {
             SessionId = Guid.NewGuid(),
             Status = "recording",
-            Transcript = "Local dictation session started. Connect a real offline speech worker to stream transcript text here.",
+            Transcript = string.Empty,
             Final = false,
             ChunkCount = 0,
             StartedUtc = now,
@@ -40,29 +40,58 @@ public sealed class LocalStreamingSpeechToTextClient : IStreamingSpeechToTextCli
         await audioStream.CopyToAsync(buffer, cancellationToken);
 
         session.ChunkCount += 1;
+        session.AudioBuffer.SetLength(0);
+        session.AudioBuffer.Position = 0;
+        buffer.Position = 0;
+        await buffer.CopyToAsync(session.AudioBuffer, cancellationToken);
+        session.AudioBuffer.Position = 0;
         session.UpdatedUtc = DateTimeOffset.UtcNow;
+        session.Status = "recording";
         session.Final = false;
-        session.Transcript = $"Local dictation session received {session.ChunkCount} audio chunk(s). Replace the placeholder local speech worker to produce live transcript text.";
+
+        if (speechEngineRunner.IsConfigured && session.AudioBuffer.Length > 44)
+        {
+            var transcript = await speechEngineRunner.TranscribeAsync(session.AudioBuffer.ToArray(), cancellationToken);
+            if (!string.IsNullOrWhiteSpace(transcript))
+            {
+                session.Transcript = transcript;
+            }
+        }
 
         return session.ToState();
     }
 
-    public Task<SpeechSessionState?> StopSessionAsync(Guid sessionId, CancellationToken cancellationToken)
+    public async Task<SpeechSessionState?> StopSessionAsync(Guid sessionId, CancellationToken cancellationToken)
     {
         if (!sessions.TryGetValue(sessionId, out var session))
         {
-            return Task.FromResult<SpeechSessionState?>(null);
+            return null;
         }
 
         session.Status = "stopped";
-        session.Final = true;
         session.UpdatedUtc = DateTimeOffset.UtcNow;
-        return Task.FromResult<SpeechSessionState?>(session.ToState());
+
+        if (speechEngineRunner.IsConfigured && session.AudioBuffer.Length > 0)
+        {
+            var transcript = await speechEngineRunner.TranscribeAsync(session.AudioBuffer.ToArray(), cancellationToken);
+            if (!string.IsNullOrWhiteSpace(transcript))
+            {
+                session.Transcript = transcript;
+            }
+        }
+        else if (session.ChunkCount == 0)
+        {
+            session.Transcript = "No audio was captured for this dictation session.";
+        }
+
+        session.Final = true;
+        return session.ToState();
     }
 
     private sealed class LocalSpeechSession
     {
         public required Guid SessionId { get; init; }
+        public MemoryStream AudioBuffer { get; } = new();
         public required string Status { get; set; }
         public required string Transcript { get; set; }
         public required bool Final { get; set; }
