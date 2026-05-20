@@ -27,8 +27,13 @@ Build persistent memory.
 Build reliable voice input.
 
 - [x] demo voice draft path wired into the composer
+- [x] temporary browser dictation fallback wired into the composer for UI testing
+- [x] local backend voice session contract added for streaming dictation
 - [ ] push-to-talk flow
 - [ ] real local speech-to-text worker
+- [ ] replace the placeholder local voice session worker with a real offline engine such as `whisper.cpp`
+- [ ] long-running dictation that stays active until the user stops it
+- [ ] live transcript updates while recording instead of record-first-then-transcribe
 - [ ] transcript review before send with a clearer voice workflow
 
 ## Phase 4
@@ -98,7 +103,9 @@ Build the long-form journal workflow.
 - [x] create a real folder-based journal structure instead of a stub
 - [x] let a chat stay linked to one journal entry
 - [x] save linked chat logs into `Journals/<entry>/logs/`
+- [x] add a local backend session shape for future offline dictation
 - [ ] build the first automatic context selector before AI processing
+- [ ] replace the current placeholder dictation worker with a real offline local speech engine
 - [ ] define the new-chat rule so a thread automatically adopts or creates its journal and folder structure
 - [ ] define how automatic context chooses files, journal summaries, and recent logs together
 - [ ] define how chat logs, `ThingsToDo`, and journal anchors work together
@@ -109,6 +116,7 @@ Build the long-form journal workflow.
 - [ ] chat should reference the file system for context before the assistant reply is generated
 - [ ] the app should gather likely context automatically when chat is engaged
 - [ ] manual drag-and-drop should stay available, but only as a fallback or explicit override
+- [ ] browser speech recognition should stay only as a temporary fallback, not the long-term offline dictation path
 - [ ] the resulting chat and context should be saved into logs
 - [ ] new chat should feel like the start of a real working thread, not a blank isolated container
 - [ ] if the user starts a new chat without an existing linked journal, the workspace should create or resolve the journal and folders automatically

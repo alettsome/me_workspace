@@ -37,6 +37,7 @@ builder.Services.AddSingleton<JournalService>();
 builder.Services.AddSingleton<VoiceService>();
 builder.Services.AddSingleton<ILlmClient, LocalLlmClient>();
 builder.Services.AddSingleton<ISpeechToTextClient, LocalSpeechToTextClient>();
+builder.Services.AddSingleton<IStreamingSpeechToTextClient, LocalStreamingSpeechToTextClient>();
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
@@ -69,6 +70,7 @@ app.MapChatEndpoints();
 app.MapFileEndpoints();
 app.MapJournalEndpoints();
 app.MapSystemEndpoints();
+app.MapVoiceEndpoints();
 
 app.Run();
 

@@ -15,6 +15,7 @@ me_workspace starts as a local chat and journal shell that runs fully offline af
 - Bind the app to `127.0.0.1` only.
 - Store all persistent state in `App_Data/me_workspace.db`.
 - Keep speech-to-text and LLM integration behind local adapters.
+- Treat browser speech recognition only as a temporary fallback, not the target offline architecture.
 - Treat any future online mode as optional and disabled by default.
 
 ## Phase 1 Request Flow

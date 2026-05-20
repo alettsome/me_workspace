@@ -11,6 +11,14 @@ const state = {
   filePreview: null,
   fileTree: [],
   chatListCollapsed: false,
+  dictationActive: false,
+  dictationFinalText: "",
+  dictationMediaRecorder: null,
+  dictationRecognition: null,
+  dictationSessionId: null,
+  dictationSeedText: "",
+  dictationStopping: false,
+  dictationStream: null,
   journalDetailCache: {},
   journalEntries: [],
   journalSelection: null,
@@ -85,6 +93,236 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function mergeDictationText(baseText, ...segments) {
+  const extraText = segments.filter(Boolean).join(" ").trim();
+  if (!baseText) {
+    return extraText;
+  }
+
+  if (!extraText) {
+    return baseText;
+  }
+
+  return /\s$/.test(baseText)
+    ? `${baseText}${extraText}`
+    : `${baseText} ${extraText}`;
+}
+
+function updateVoiceDraftButton() {
+  elements.voiceDraftButton.textContent = state.dictationActive ? "Stop" : "Dictation";
+  elements.voiceDraftButton.setAttribute("title", state.dictationActive ? "Stop dictation" : "Start dictation");
+  elements.voiceDraftButton.setAttribute("aria-label", state.dictationActive ? "Stop dictation" : "Start dictation");
+}
+
+function applyDictationText(currentText, isFinal = false) {
+  if (!currentText) {
+    return;
+  }
+
+  if (isFinal) {
+    state.dictationFinalText = currentText;
+  }
+
+  elements.messageInput.value = mergeDictationText(state.dictationSeedText, currentText);
+}
+
+function resetDictationState() {
+  state.dictationActive = false;
+  state.dictationFinalText = "";
+  state.dictationMediaRecorder = null;
+  state.dictationRecognition = null;
+  state.dictationSessionId = null;
+  state.dictationSeedText = "";
+  state.dictationStopping = false;
+  if (state.dictationStream) {
+    for (const track of state.dictationStream.getTracks()) {
+      track.stop();
+    }
+  }
+  state.dictationStream = null;
+  updateVoiceDraftButton();
+}
+
+async function startVoiceSession() {
+  return request("/api/voice/sessions/start", {
+    method: "POST",
+  });
+}
+
+async function stopVoiceSession(sessionId) {
+  return request(`/api/voice/sessions/${sessionId}/stop`, {
+    method: "POST",
+  });
+}
+
+async function appendVoiceChunk(sessionId, audioBlob) {
+  const response = await fetch(`/api/voice/sessions/${sessionId}/chunks`, {
+    method: "POST",
+    body: audioBlob,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Voice chunk upload failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function startLocalSessionDictation() {
+  if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+    return false;
+  }
+
+  const session = await startVoiceSession();
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mimeType = MediaRecorder.isTypeSupported?.("audio/webm;codecs=opus")
+    ? "audio/webm;codecs=opus"
+    : undefined;
+  const recorder = mimeType
+    ? new MediaRecorder(stream, { mimeType })
+    : new MediaRecorder(stream);
+
+  state.dictationSessionId = session.sessionId;
+  state.dictationSeedText = elements.messageInput.value.trim();
+  state.dictationFinalText = session.transcript ?? "";
+  state.dictationStream = stream;
+  state.dictationMediaRecorder = recorder;
+  state.dictationStopping = false;
+  state.dictationActive = true;
+  updateVoiceDraftButton();
+  applyDictationText(session.transcript, session.final);
+
+  recorder.addEventListener("dataavailable", async (event) => {
+    if (!event.data || event.data.size === 0 || !state.dictationSessionId) {
+      return;
+    }
+
+    try {
+      const sessionState = await appendVoiceChunk(state.dictationSessionId, event.data);
+      applyDictationText(sessionState.transcript, sessionState.final);
+    } catch (error) {
+      console.error(error);
+      alert("Local dictation could not process the latest audio chunk.");
+    }
+  });
+
+  recorder.addEventListener("stop", async () => {
+    const sessionId = state.dictationSessionId;
+
+    try {
+      if (sessionId) {
+        const sessionState = await stopVoiceSession(sessionId);
+        applyDictationText(sessionState.transcript, true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      resetDictationState();
+      elements.messageInput.focus();
+    }
+  });
+
+  recorder.start(1500);
+  return true;
+}
+
+function stopActiveDictation() {
+  state.dictationStopping = true;
+
+  if (state.dictationMediaRecorder && state.dictationMediaRecorder.state !== "inactive") {
+    state.dictationMediaRecorder.stop();
+    return;
+  }
+
+  if (state.dictationRecognition) {
+    state.dictationRecognition.stop();
+    return;
+  }
+
+  resetDictationState();
+}
+
+function createBrowserSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    return null;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+  recognition.lang = navigator.language || "en-GB";
+  return recognition;
+}
+
+function startBrowserDictation() {
+  const recognition = createBrowserSpeechRecognition();
+  if (!recognition) {
+    return false;
+  }
+
+  state.dictationRecognition = recognition;
+  state.dictationSeedText = elements.messageInput.value.trim();
+  state.dictationFinalText = "";
+  state.dictationStopping = false;
+
+  recognition.addEventListener("start", () => {
+    state.dictationActive = true;
+    updateVoiceDraftButton();
+  });
+
+  recognition.addEventListener("result", (event) => {
+    let finalText = state.dictationFinalText;
+    let interimText = "";
+
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const candidate = event.results[index]?.[0]?.transcript?.trim();
+      if (!candidate) {
+        continue;
+      }
+
+      if (event.results[index].isFinal) {
+        finalText = mergeDictationText(finalText, candidate);
+      } else {
+        interimText = mergeDictationText(interimText, candidate);
+      }
+    }
+
+    state.dictationFinalText = finalText;
+    elements.messageInput.value = mergeDictationText(state.dictationSeedText, finalText, interimText);
+  });
+
+  recognition.addEventListener("error", async (event) => {
+    if (event.error === "aborted" && state.dictationStopping) {
+      return;
+    }
+
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      alert("Microphone access is blocked. Allow microphone access in the browser, then try dictation again.");
+      return;
+    }
+
+    if (event.error === "no-speech") {
+      return;
+    }
+
+    try {
+      await loadVoiceDraft();
+    } catch (error) {
+      showError(error);
+    }
+  });
+
+  recognition.addEventListener("end", () => {
+    resetDictationState();
+    elements.messageInput.focus();
+  });
+
+  recognition.start();
+  return true;
 }
 
 function formatInlineText(value) {
@@ -1169,8 +1407,29 @@ elements.chatSwitcherToggle.addEventListener("click", () => {
   renderChatSwitcher();
 });
 
-elements.voiceDraftButton.addEventListener("click", () => {
-  loadVoiceDraft().catch(showError);
+elements.voiceDraftButton.addEventListener("click", async () => {
+  if (state.dictationActive) {
+    stopActiveDictation();
+    return;
+  }
+
+  try {
+    if (await startLocalSessionDictation()) {
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  try {
+    if (startBrowserDictation()) {
+      return;
+    }
+
+    await loadVoiceDraft();
+  } catch (error) {
+    showError(error);
+  }
 });
 
 elements.memoryCancelButton.addEventListener("click", () => {
@@ -1267,6 +1526,7 @@ elements.chatForm.addEventListener("drop", (event) => {
 Promise.all([loadSystemFlow(), loadConversations(), loadMemoryItems(), loadJournalEntries(), loadFileTree()])
   .then(async () => {
     resetMemoryForm();
+    updateVoiceDraftButton();
     renderAttachedFiles();
     setComposerDropState(false);
     renderDocument();

@@ -1,5 +1,4 @@
 using me_workspace.Web.Features.Memory;
-using me_workspace.Web.Features.Voice;
 
 namespace me_workspace.Web.Features.System;
 
@@ -46,13 +45,6 @@ public static class SystemEndpoints
             var deleted = await memoryService.DeleteItemAsync(id, cancellationToken);
             return deleted ? Results.NoContent() : Results.NotFound();
         });
-
-        app.MapPost("/api/voice/demo-transcript", async (VoiceService voiceService, CancellationToken cancellationToken) =>
-        {
-            var transcript = await voiceService.CreateDraftTranscriptAsync(cancellationToken);
-            return Results.Ok(transcript);
-        });
-
         return app;
     }
 }
