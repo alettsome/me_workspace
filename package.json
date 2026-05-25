@@ -1,0 +1,29 @@
+{
+  "name": "me_workspace",
+  "version": "1.0.0",
+  "description": "A local-first, single-user document platform for managing books, business plans, strategic plans, and project management.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alettsome/me_workspace.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/alettsome/me_workspace/issues"
+  },
+  "homepage": "https://github.com/alettsome/me_workspace#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "sqlite3": "^6.0.1"
+  }
+}

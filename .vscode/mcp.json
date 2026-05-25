@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "me_workspace-sqlite": {
+      "command": "node",
+      "args": ["C:\\me_workspace\\mcp-server.js"],
+      "env": {}
+    }
+  }
+}
