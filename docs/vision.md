@@ -64,6 +64,44 @@ Why they would choose this over something else:
 - it reduces the restart burden by keeping memory and context tied to the workspace
 - it can evolve into a system for producing documents, reports, and next actions instead of just producing replies
 
+### High-Need Users
+
+The strongest long-term fit may be people doing work where the cost of being wrong is high and the cost of losing context is even higher.
+
+This includes work where:
+
+- records matter
+- accuracy matters
+- recovery after interruption matters
+- structure must stay consistent
+- notes turn into decisions, reports, case files, or regulated documents
+
+This is important because the product should not be positioned only as a convenience tool.
+
+It should also serve people doing high-consequence work who cannot afford:
+
+- scattered notes
+- repeated restarts
+- missing context
+- weak memory across sessions
+- updates landing in the wrong place
+- fragile browser-only trust boundaries
+- unclear backup and recovery paths
+
+Examples of stronger-fit industries and workflows:
+
+- legal work, case preparation, and compliance-heavy documentation
+- medical documentation, care coordination, and administrative continuity
+- consulting, audits, and regulated advisory work
+- insurance, claims, and evidence-heavy review workflows
+- construction, inspections, and safety-sensitive documentation
+- manufacturing, process documentation, and operational record keeping
+- public-sector, nonprofit, or government-adjacent environments with retention and accountability needs
+
+The goal is not to chase every casual AI user.
+
+The goal is to become essential for people whose work cannot afford to lose context, drift structurally, or start over repeatedly.
+
 ## Why It Is Different
 
 ### Competitive Landscape
@@ -337,6 +375,22 @@ The strongest reasons someone would pay for me_workspace are:
 - it works even when cloud access is undesirable or impossible
 
 The more the product becomes a dependable part of journaling, reporting, planning, or regulated work, the less it behaves like a discretionary app and the more it behaves like infrastructure.
+
+### A Strong Selling Point
+
+One of the clearest product promises is simple:
+
+me_workspace should help people continue important work without starting over.
+
+That matters because many existing tools become unreliable when:
+
+- sessions get long
+- documents get large
+- files multiply
+- the user returns after a break
+- the work needs stable memory and repeatable structure
+
+If me_workspace can reliably preserve continuity across chat, files, journals, logs, and tasks, that becomes more than a convenience feature. It becomes a trust feature.
 
 ### macOS and Packaging
 

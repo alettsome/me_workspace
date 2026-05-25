@@ -4,3 +4,11 @@ src/**/obj/
 .lh/
 artifacts/
 sync.ffs_db
+
+# Large model files
+tools/whispercpp/models/*.bin
+tools/whispercpp/models/*.ggml
+*.bin
+
+
+tools/whispercpp/

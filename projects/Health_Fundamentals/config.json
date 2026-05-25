@@ -1,0 +1,8 @@
+{
+  "output_dir": "Research/01-Inbox",
+  "screenshot_delay_ms": 1500,
+  "page_load_timeout_ms": 10000,
+  "headless": false,
+  "ollama_url": "http://localhost:11434",
+  "model": "phi3:3.8b"
+}

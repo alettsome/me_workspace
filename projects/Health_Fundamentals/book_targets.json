@@ -1,0 +1,14 @@
+[
+  {
+    "isbn": "vitaminDsolution00holick",
+    "title": "The Vitamin D Solution",
+    "author": "Michael F. Holick",
+    "page_ranges": [[10, 50], [80, 120], [200, 250]]
+  },
+  {
+    "isbn": "magnesiummiracl00dean",
+    "title": "The Magnesium Miracle",
+    "author": "Carolyn Dean",
+    "page_ranges": [[15, 60], [100, 150]]
+  }
+]

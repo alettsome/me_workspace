@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "uSwkKZWmaqc=",
+  "success": true,
+  "projectFilePath": "C:\\me_workspace\\tools\\ExtractPdfText\\ExtractPdfText.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\alett\\.nuget\\packages\\docnet.core\\2.6.0\\docnet.core.2.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}
