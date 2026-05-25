@@ -55,6 +55,7 @@ builder.Services.AddSingleton<JournalService>();
 builder.Services.AddSingleton<VoiceService>();
 builder.Services.AddSingleton<WorkspaceLayoutService>();
 builder.Services.AddHostedService<WorkspaceBootstrapHostedService>();
+builder.Services.AddHostedService<BackgroundProcessingService>();
 builder.Services.AddSingleton<PipelineQueue>();
 builder.Services.AddScoped<SourceRegistryService>();
 builder.Services.AddScoped<ExtractionService>();

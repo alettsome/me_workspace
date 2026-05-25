@@ -29,6 +29,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<TrendAnalysis> TrendAnalyses => Set<TrendAnalysis>();
 
+    public DbSet<ProcessingNotification> ProcessingNotifications => Set<ProcessingNotification>();
+
     public DbSet<Message> Messages => Set<Message>();
 
     public DbSet<MemoryItem> MemoryItems => Set<MemoryItem>();

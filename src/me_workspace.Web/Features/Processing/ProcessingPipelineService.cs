@@ -199,11 +199,12 @@ public record ProcessingResultDto(
     bool Success,
     string Message,
     int ChunksCreated,
-    int CharactersProcessed)
+    int CharactersProcessed,
+    long ProcessingTimeMs = 0)
 {
-    public static ProcessingResultDto CreateSuccess(string message, int chunks, int chars) =>
-        new(true, message, chunks, chars);
+    public static ProcessingResultDto CreateSuccess(string message, int chunks, int chars, long timeMs = 0) =>
+        new(true, message, chunks, chars, timeMs);
 
     public static ProcessingResultDto CreateFailure(string message) =>
-        new(false, message, 0, 0);
+        new(false, message, 0, 0, 0);
 }
