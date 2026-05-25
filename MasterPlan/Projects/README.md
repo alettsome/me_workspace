@@ -1,0 +1,132 @@
+# Projects - Documentation Repository
+
+This folder contains **complete documentation for all projects** in the me_workspace platform.
+
+**Philosophy**: MasterPlan/Projects/ mirrors the runtime workspace structure to help visualize how documentation maps to implementation.
+
+---
+
+## Structure Mapping
+
+### Planning → Runtime
+
+```
+MasterPlan/Projects/               Runtime Workspace/
+├── 00-Global-Inbox-System/    →  runtime/00-Global-Inbox/
+├── Automatic-Processing/       →  Enables runtime/01-Inbox/ monitoring
+├── Chunking/                   →  Creates runtime/03-Chunked/
+├── Health-Fundamentals/        →  projects/Health_Fundamentals/
+└── Council-Workflow/           →  Uses database Project table
+```
+
+**Key Principle**: Each project folder here documents what that system component does. When implemented, it creates/uses the corresponding runtime folder or database table.
+
+---
+
+## Active Projects
+
+### ✅ Implemented & Documented
+
+**[Automatic-Processing](./Automatic-Processing/)**
+- **What**: PDF auto-detection and processing pipeline
+- **Runtime**: Monitors `runtime/01-Inbox/`, creates `runtime/03-Chunked/`
+- **Status**: Working (59 chunks from Claudechat.pdf processed successfully)
+- **Files**: Complete 15-file documentation
+
+**[Chunking](./Chunking/)**
+- **What**: Split documents into processable 500-token pieces
+- **Runtime**: Creates `runtime/03-Chunked/{source-id}/chunk-XXXX.txt`
+- **Status**: Working (dual-write to database + filesystem)
+- **Files**: Complete 15-file documentation
+
+### 🔄 In Documentation
+
+**[00-Global-Inbox-System](./00-Global-Inbox-System/)**
+- **What**: Universal capture system with GTD inbox-zero principles
+- **Runtime**: Will create `runtime/00-Global-Inbox/` for RAW captures
+- **Status**: Documenting (5 of 15 files complete)
+- **Files**: 00-Index, 01-Problem, 02-Solution, 06-Financial, 07-Workflow
+
+### 📋 Planned (Not Yet Documented)
+
+**Health-Fundamentals**
+- **What**: Book project validating platform capabilities
+- **Runtime**: Uses `projects/Health_Fundamentals/` (already exists)
+- **Status**: Code exists, documentation needed
+
+**Bible-Constitution**
+- **What**: KJV + Ethiopian Bible cross-reference system
+- **Runtime**: Will use `projects/Bible-Constitution/`
+- **Status**: Planned Phase 5
+
+**Council-Workflow**
+- **What**: Multi-source research (2-3 books, find common themes)
+- **Runtime**: Uses `Project`, `Summary`, `TrendAnalysis` database tables
+- **Status**: Planned Phase 6 (database schema exists)
+
+---
+
+## Documentation Template
+
+Each project follows the **15 Decision Files** structure:
+
+| #   | File                            | Purpose                           |
+| --- | ------------------------------- | --------------------------------- |
+| 00  | Feature-Index.md                | Overview, links, quick reference  |
+| 01  | Problem-Definition.md           | What pain point exists?           |
+| 02  | Solution-Approach.md            | How do we solve it?               |
+| 03  | Competitive-Analysis.md         | Market alternatives comparison    |
+| 04  | Target-Audience.md              | End users, personas               |
+| 05  | Benefits.md                     | Value to company/users/system     |
+| 06  | Financial-Considerations.md     | Cost, ROI, resources              |
+| 07  | Workflow.md                     | How it works (user journey)       |
+| 08  | Functionalities.md              | Capabilities provided             |
+| 09  | Technology-Choices.md           | Tech stack, rationale             |
+| 10  | UI-Design.md                    | Screen layout, UX                 |
+| 11  | Attributes.md                   | Properties, metadata              |
+| 12  | Configuration-Parameters.md     | Settings, tuning                  |
+| 13  | Modules-Implementation.md       | Code structure, APIs              |
+| 14  | Future-Vision.md                | Roadmap, enhancements             |
+| 15  | Release-Timeline.md             | Now vs later priorities           |
+
+**See [../System-Hierarchy.md](../System-Hierarchy.md)** for complete template specification.
+
+---
+
+## Navigation Guide
+
+### For Humans
+
+**To understand the platform:**
+1. Start with [../Phases.md](../Phases.md) - temporal view (what's built when)
+2. Browse this folder - capability view (what exists now)
+3. Dive into specific projects as needed
+
+**To add a new project:**
+1. Create folder: `MasterPlan/Projects/{Project-Name}/`
+2. Copy 15-file template from existing project
+3. Fill out files progressively (start with 00, 01, 02)
+4. Update this README with project status
+
+### For AI Agents
+
+**To understand a project:**
+1. Read `{project}/00-Feature-Index.md` first (high-level overview)
+2. Access specific files as needed (e.g., `07-Workflow.md` for user journey)
+3. Avoid loading all 15 files unless full context needed (Unix principle)
+
+**To evaluate a project:**
+- Problem clarity: `01-Problem-Definition.md`
+- Solution viability: `02-Solution-Approach.md`
+- Implementation status: `13-Modules-Implementation.md`
+- Future roadmap: `14-Future-Vision.md`
+
+---
+
+## Key Principles
+
+✅ **Mirror Runtime Structure** - Project folders here map to runtime folders/tables  
+✅ **Progressive Documentation** - Start with 3-5 files, add more as complexity grows  
+✅ **15-File Template** - Consistent structure across all projects  
+✅ **Local-First** - All documentation in git, no external dependencies  
+✅ **AI-Readable** - Structured for both humans and AI agents

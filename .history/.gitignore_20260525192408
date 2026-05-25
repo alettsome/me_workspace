@@ -1,0 +1,17 @@
+src/**/bin/
+src/**/obj/
+.vs/
+.lh/
+artifacts/
+sync.ffs_db
+
+# Runtime data (logs, chunks, temp files)
+runtime/
+
+# Large model files
+tools/whispercpp/models/*.bin
+tools/whispercpp/models/*.ggml
+*.bin
+
+
+tools/whispercpp/
