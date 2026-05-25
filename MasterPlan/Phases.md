@@ -62,6 +62,76 @@ The phases below combine:
 - [ ] Create template folder structure for general-purpose document projects
 - [ ] Review and refine the planning docs after the next implementation slice
 
+---
+
+## GTD Inbox-Zero Vision (High-Level Overview)
+
+**Philosophy**: Universal capture → Auto-triage → Process → Resolve → Output
+
+This platform extends **GTD inbox-zero principles** beyond email to your entire life:
+
+### Three-Level Inbox System
+
+1. **00-Global-Inbox/** - Universal RAW capture (no categorization required)
+   - Random thoughts, emotions, pictures, files
+   - No forced organization - just dump it
+   - System auto-triages based on type
+
+2. **projects/{id}/inbox/** - Project-specific capture
+   - When you know where it belongs
+   - Keeps project context intact
+
+3. **journals/{id}/inbox/** - Emotional/issue processing
+   - Auto-generate journal entries
+   - Start typing immediately (no setup)
+   - Duration-agnostic (3 minutes to 3 years)
+
+### The Complete Flow
+
+```
+Capture anything (friction-free)
+    ↓
+Auto-triage:
+├─→ File? → 01-Inbox/ → Automatic processing ✅
+├─→ Thought? → Insights panel → Review later
+├─→ Emotion? → Auto-generate journal/{id}/ → Start typing
+└─→ Project idea? → Create project/ → Begin work
+    ↓
+Process to resolution:
+├─→ Writing resolves it ✓
+├─→ Share with practitioner 💰
+└─→ Discover action needed → Create project
+    ↓
+Generate outputs:
+├─→ Personal healing
+├─→ Marketable products (books, courses)
+└─→ Professional services (practitioner insights)
+```
+
+### Revenue Model
+
+**Phase 1**: Personal productivity (current)  
+**Phase 2**: Practitioner subscriptions (curated client logs with permission)  
+**Phase 3**: Personal products (books/courses from healing journey)  
+**Phase 4**: CRM integration (manage product sales, customers)
+
+### Scalability
+
+Same pattern applies to:
+- Personal thoughts ✅
+- Files ✅
+- Journals (implementing)
+- Projects (implementing)
+- Emails (future)
+- Website requests (future)
+- Customer interactions (future)
+
+**Key Principle**: 24/7 effective resolution - system always working toward emptying all inboxes.
+
+See [Features/Global-Inbox/](Features/Global-Inbox/) for complete 15-file documentation.
+
+---
+
 ## Phase 1: Stabilize The Existing Local Shell
 
 - [x] Local ASP.NET Core app exists

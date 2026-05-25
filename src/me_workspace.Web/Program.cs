@@ -81,6 +81,7 @@ using (var scope = app.Services.CreateScope())
     EnsureMessageFileContextTable(db);
     EnsureConversationJournalEntryColumn(db);
     EnsureSourceTables(db);
+    EnsureProcessingNotificationsTable(db);
     SeedDefaultMemoryItems(db);
 }
 
@@ -273,6 +274,42 @@ static void EnsureSourceTables(AppDbContext db)
     db.Database.ExecuteSqlRaw(processingJobsIndexSql);
     db.Database.ExecuteSqlRaw(chunksSql);
     db.Database.ExecuteSqlRaw(chunksIndexSql);
+}
+
+static void EnsureProcessingNotificationsTable(AppDbContext db)
+{
+    const string notificationsSql = """
+        CREATE TABLE IF NOT EXISTS "ProcessingNotifications" (
+            "Id" TEXT NOT NULL CONSTRAINT "PK_ProcessingNotifications" PRIMARY KEY,
+            "SourceId" TEXT NULL,
+            "FileName" TEXT NOT NULL,
+            "Status" TEXT NOT NULL,
+            "Message" TEXT NULL,
+            "ChunksCreated" INTEGER NULL,
+            "CharactersProcessed" INTEGER NULL,
+            "ProcessingTimeMs" INTEGER NULL,
+            "CreatedUtc" TEXT NOT NULL,
+            "IsRead" INTEGER NOT NULL DEFAULT 0,
+            CONSTRAINT "FK_ProcessingNotifications_Sources_SourceId" FOREIGN KEY ("SourceId") REFERENCES "Sources" ("Id") ON DELETE CASCADE
+        );
+        """;
+
+    const string sourceIdIndexSql = """
+        CREATE INDEX IF NOT EXISTS "IX_ProcessingNotifications_SourceId" ON "ProcessingNotifications" ("SourceId");
+        """;
+
+    const string createdUtcIndexSql = """
+        CREATE INDEX IF NOT EXISTS "IX_ProcessingNotifications_CreatedUtc" ON "ProcessingNotifications" ("CreatedUtc");
+        """;
+
+    const string isReadIndexSql = """
+        CREATE INDEX IF NOT EXISTS "IX_ProcessingNotifications_IsRead" ON "ProcessingNotifications" ("IsRead");
+        """;
+
+    db.Database.ExecuteSqlRaw(notificationsSql);
+    db.Database.ExecuteSqlRaw(sourceIdIndexSql);
+    db.Database.ExecuteSqlRaw(createdUtcIndexSql);
+    db.Database.ExecuteSqlRaw(isReadIndexSql);
 }
 
 static void SeedDefaultMemoryItems(AppDbContext db)

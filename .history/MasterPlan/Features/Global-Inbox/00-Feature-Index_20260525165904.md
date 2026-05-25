@@ -1,0 +1,267 @@
+# Feature Index - Global Inbox
+
+**Feature**: Global Inbox  
+**Status**: 🔄 In Development  
+**Priority**: High - Foundation for Objective Management
+
+---
+
+## Context Links
+
+**Parent Project**: me_workspace Platform  
+**Problem Solved**: [01-Problem-Definition.md](./01-Problem-Definition.md)  
+**Solution Approach**: [02-Solution-Approach.md](./02-Solution-Approach.md)
+
+---
+
+## Related Phase
+
+- **Phase 5**: Intake Folder Workflow (Global Inbox section)
+- **TBD**: Objectives Management Phase
+
+---
+
+## Quick Summary
+
+**Universal RAW capture point** - A complete life operating system built on GTD inbox-zero principles.
+
+Three levels of inbox:
+1. **00-Global-Inbox/** - RAW capture (no home yet) - random thoughts, emotions, pictures, files
+2. **projects/{id}/inbox/** - Project-specific (you know where it belongs)
+3. **journals/{id}/inbox/** - Journal-specific (processing emotions/issues)
+
+**Core Flow**: Capture anything → System auto-triages → Process to resolution → Generate outputs (personal healing + marketable products)
+
+**Key Value**: 
+- Never lose context (everything captured and preserved)
+- Friction-free capture (no forced categorization)
+- Dual-purpose outputs (personal healing + commercial products)
+- 24/7 effective resolution (GTD inbox-zero for your entire life)
+
+---
+
+## Builds On Existing System
+
+**Current** (File Intake):
+```
+me_workspaces_runtime/
+├── 01-Inbox/          ← Drop PDFs here, automatic processing ✅
+├── 02-Normalized/     ← Processed files
+├── 03-Chunked/        ← Chunked content
+└── ...
+```
+
+**Adding** (Three-Level Inbox System):
+```
+me_workspaces_runtime/
+├── 00-Global-Inbox/   ← Universal RAW capture (no home yet)
+│   ├── files/         → Auto-route to 01-Inbox/ for processing
+│   ├── thoughts/      → Review in Insights panel
+│   ├── pictures/      → Connect to projects/journals
+│   └── misc/          → Process later, no forced categorization
+│
+├── projects/{id}/
+│   ├── inbox/         ← Project-specific capture (you know where it goes)
+│   ├── notes/
+│   ├── chat/
+│   └── outputs/
+│
+├── journals/{id}/
+│   ├── inbox/         ← Journal-specific capture (emotions/issues)
+│   ├── entries/       ← Auto-generated entries (start typing immediately)
+│   ├── chat/          ← Processing conversations
+│   └── curated/       → Share with practitioners OR publish
+│
+└── 01-Inbox/          ← Existing file intake ✅
+```
+
+**Same Philosophy**: Folder-as-agent, everything in one place, easy to navigate.
+
+---
+
+## The Complete Flow
+
+### Flow 1: Universal Capture → Auto-Triage
+```
+00-Global-Inbox/ (drop anything)
+    ↓
+System detects:
+├─→ File (PDF/image)? → Auto-move to 01-Inbox/ → Automatic processing
+├─→ Thought/note? → Insights panel → Review later
+├─→ Emotion/feeling? → Auto-generate journal entry → Start typing
+└─→ Project idea? → Create project folder → Begin work
+```
+
+### Flow 2: Journal → Discovery → Project → Output
+```
+Emotional issue / Random thought
+    ↓
+Auto-generate journal/{id}/
+    ↓
+Start typing immediately (pour it out)
+    ↓
+Journal continues (hour/day/year)
+    ↓
+Resolution paths:
+├─→ Writing alone resolves it ✓
+├─→ Share with practitioner 💰 (curated logs)
+└─→ Discover need for action:
+    ├─→ Get blood work done
+    ├─→ Research topic
+    ├─→ Write strategy document
+    └─→ Write book (DUAL PURPOSE ⭐)
+            ├─→ Personal healing journey
+            └─→ Marketable product
+```
+
+### Flow 3: Dual-Purpose Outputs
+```
+Personal logs (raw, unfiltered)
+    ↓
+Processing & curation
+    ↓
+Refined outputs:
+├─→ Books (healing + product)
+├─→ Courses (journey + income)
+├─→ Strategy documents (clarity + consulting)
+└─→ Practitioner insights (client data + subscription 💰)
+```
+
+---
+
+## Core Concepts
+
+**GTD Inbox-Zero** (Universal Pattern):
+- Everything has an inbox (not just email)
+- Capture everything (no thinking required)
+- Process to empty (effective resolution)
+- Scales to everything: thoughts, files, emails, website requests, customer interactions
+
+**No Forced Categorization**:
+- Drop raw items without thinking
+- System handles triage
+- Process when ready, not immediately
+
+**Duration-Agnostic**:
+- Items last 3 minutes to 3 years
+- No forced timelines
+- Natural lifecycle (capture → process → resolve → archive)
+
+**Context Preservation**:
+- Each item/project/journal gets own folder
+- All conversations stay with the item
+- Never lose context (revisit months/years later)
+
+**Dual-Purpose Philosophy**:
+- Personal healing through journaling
+- Marketable products from refined content
+- Same journey, two outputs
+
+---
+
+## Revenue Streams
+
+**Phase 1** (Current focus):
+- Personal productivity and healing (no revenue)
+
+**Phase 2** (Near-term):
+- **Practitioner subscriptions** 💰 - Access to curated client logs (with permission)
+  - Psychiatrists, therapists, naturopaths
+  - Pre-organized insights, save practitioner time
+  - Client controls what gets shared
+
+**Phase 3** (Medium-term):
+- **Personal products** 💰 - Books/courses from healing journey
+  - Health books (like Health Fundamentals)
+  - Strategy documents
+  - Educational content
+
+**Phase 4** (Future):
+- **CRM for product management** 💰
+  - Manage book sales
+  - Course enrollments
+  - Customer relationships
+  - Same inbox-zero concept applied to business
+
+---
+
+## Scalability Vision
+
+**Current**: Personal thoughts + files  
+**Near-term**: + Journals + Projects  
+**Future**: + Emails + Website requests + CRM + Customer interactions
+
+**Same Pattern Everywhere**:
+```
+capture → auto-triage → process → resolve → output
+```
+
+**24/7 Effective Resolution**: System always working, issues always progressing toward resolution.
+
+---
+
+## Implementation Approach
+
+**Hybrid**: Database + Filesystem (like Automatic-Processing)
+
+- **Database**: Queryable metadata (status, type, timestamps, relationships)
+- **Filesystem**: Rich content (notes, chat logs, journal entries, attachments)
+- **Dual-Write**: Keep both in sync
+
+**Three-Level Architecture**:
+1. **Global level** - `00-Global-Inbox/` for universal capture
+2. **Project level** - `projects/{id}/inbox/` for targeted work
+3. **Journal level** - `journals/{id}/inbox/` for emotional processing
+
+---
+
+## Implementation Files (Planned)
+
+**Core Entities**:
+- `InboxItem.cs` - Universal capture items
+- `Project.cs` - Already exists ✅
+- `Journal.cs`, `JournalEntry.cs` - Emotional processing logs
+- `Output.cs` - Publishable/marketable artifacts
+
+**Services**:
+- `InboxService.cs` - Auto-triage and routing
+- `JournalService.cs` - Auto-generate entries, manage lifecycle
+- `OutputService.cs` - Curate logs for publishing/sharing
+
+**Endpoints**:
+- `InboxEndpoints.cs` - Universal capture API
+- `JournalEndpoints.cs` - Journal management
+- `InsightsPanelEndpoints.cs` - Review queue (inbox-zero UI)
+
+**Database Tables**:
+- `InboxItems` - Universal capture queue
+- `Journals`, `JournalEntries` - Emotional processing
+- `Outputs` - Marketable artifacts
+- `PractitionerShares` - Revenue feature (future)
+
+**Filesystem**:
+- `00-Global-Inbox/{type}/{id}/` - Universal capture
+- `projects/{id}/` - Already exists ✅
+- `journals/{id}/` - New structure
+
+---
+
+## Navigation
+
+| File                                                               | Purpose                                                     |
+| ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| [01-Problem-Definition.md](./01-Problem-Definition.md)             | Context loss, forced categorization, data ownership         |
+| [02-Solution-Approach.md](./02-Solution-Approach.md)               | Three-level inbox + GTD + dual-purpose outputs              |
+| [03-Competitive-Analysis.md](./03-Competitive-Analysis.md)         | vs Notion, Obsidian, Evernote, Roam (why local-first wins)  |
+| [04-Target-Audience.md](./04-Target-Audience.md)                   | Knowledge workers, therapists, researchers, authors         |
+| [05-Benefits.md](./05-Benefits.md)                                 | Never lose context, dual-purpose outputs, revenue potential |
+| [06-Financial-Considerations.md](./06-Financial-Considerations.md) | Practitioner subs, content products, CRM future             |
+| [07-Workflow.md](./07-Workflow.md)                                 | Capture → Auto-triage → Process → Resolve → Output          |
+| [08-Functionalities.md](./08-Functionalities.md)                   | Universal capture, journal auto-gen, insights panel         |
+| [09-Technology-Choices.md](./09-Technology-Choices.md)             | SQLite + folder structure + .NET services                   |
+| [10-UI-Design.md](./10-UI-Design.md)                               | Insights panel, drag-drop capture, inbox-zero dashboard     |
+| [11-Attributes.md](./11-Attributes.md)                             | Item types, statuses, relationships, timestamps             |
+| [12-Configuration-Parameters.md](./12-Configuration-Parameters.md) | Inbox paths, auto-triage rules, journal templates           |
+| [13-Modules-Implementation.md](./13-Modules-Implementation.md)     | Services, endpoints, database schema                        |
+| [14-Future-Vision.md](./14-Future-Vision.md)                       | Email integration, CRM, practitioner platform               |
+| [15-Release-Timeline.md](./15-Release-Timeline.md)                 | MVP → Revenue → Scale roadmap                               |

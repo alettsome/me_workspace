@@ -135,6 +135,23 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        modelBuilder.Entity<ProcessingNotification>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.FileName).HasMaxLength(300).IsRequired();
+            entity.Property(x => x.Status).HasMaxLength(32).IsRequired();
+            entity.Property(x => x.Message).HasMaxLength(2000);
+            entity.Property(x => x.CreatedUtc).IsRequired();
+            entity.Property(x => x.IsRead).IsRequired();
+            entity.HasOne(x => x.Source)
+                .WithMany()
+                .HasForeignKey(x => x.SourceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(x => x.SourceId);
+            entity.HasIndex(x => x.CreatedUtc);
+            entity.HasIndex(x => x.IsRead);
+        });
+
         modelBuilder.Entity<MemoryItem>(entity =>
         {
             entity.HasKey(x => x.Id);
