@@ -141,13 +141,13 @@ Every problem and every feature follows this structure:
 
 ### Content Types
 
-| Content Type        | Folders/Files That Appear                                |
-| ------------------- | -------------------------------------------------------- |
-| **Journal**         | problems/ (optional), no executive-summary.md            |
-| **Weekend Project** | problems/, strategic/ (minimal), no financial            |
-| **Book Project**    | problems/ (chapters), executive-summary.md (preface)     |
-| **Business Plan**   | ALL folders, executive-summary.md, financial-overview.md |
-| **Report**          | problems/ (findings), strategic/ (timeline)              |
+| Content Type      | Folders/Files That Appear                                |
+| ----------------- | -------------------------------------------------------- |
+| **Journal**       | problems/ (optional), no executive-summary.md            |
+| **Mini Project**  | problems/, strategic/ (minimal), no financial            |
+| **Book Project**  | problems/ (chapters), executive-summary.md (preface)     |
+| **Business Plan** | ALL folders, executive-summary.md, financial-overview.md |
+| **Report**        | problems/ (findings), strategic/ (timeline)              |
 
 ### Visibility Mechanism
 
@@ -421,10 +421,10 @@ archive/
 
 ## Examples
 
-### Example 1: Simple Weekend Project
+### Example 1: Simple Mini Project
 
 ```
-projects/Painting-Weekend/
+projects/Painting-Living-Room/
 ├── README.md                     "Paint living room"
 ├── vision.md                     "Refresh home aesthetics"
 └── problems/
@@ -436,7 +436,7 @@ projects/Painting-Weekend/
         ├── 09-Technology-Choices.md   "Sherwin-Williams paint"
         └── 15-Release-Timeline.md     "This Saturday"
 
-        [Files 03,05,06,08,10-14 exist but marked "N/A - Weekend project"]
+        [Files 03,05,06,08,10-14 exist but marked "N/A - Mini project"]
 ```
 
 ### Example 2: Business Plan Project
@@ -481,6 +481,431 @@ projects/Health-Book/
 
 ---
 
+## Complexity Scaling & Template System
+
+### Core Principle: Progressive Disclosure
+
+**Start simple. Add structure only when value is clear.**
+
+The system uses **on-demand file creation** from templates rather than pre-creating empty files. This keeps the file system clean and ensures files exist only when they have purpose.
+
+---
+
+### Content Type Matrix
+
+Different content types start with different file sets:
+
+| Content Type         | Initial Files | Purpose                                                |
+| -------------------- | ------------- | ------------------------------------------------------ |
+| **Journal Entry**    | 3 files       | Daily reflection, notes, thoughts                      |
+| **Evaluation Phase** | 7 files       | Assessing whether an idea warrants project status      |
+| **Mini Project**     | 5-7 files     | Small focused work (personal projects, quick builds)   |
+| **Feature**          | 15 files      | Technical capabilities requiring full decision context |
+| **Business Plan**    | 15+ files     | Strategic projects requiring comprehensive planning    |
+| **Book Project**     | 15+ files     | Long-form content with chapter structure               |
+
+---
+
+### Template Storage Structure
+
+Templates are stored in `C:\me_workspace\templates\` and copied on-demand:
+
+```
+templates/
+├── journal-entry/
+│   ├── entry.md              ← Main content
+│   ├── meta.json             ← Metadata (date, tags, status)
+│   └── summary.md            ← Quick context (AI-generated)
+│
+├── evaluation-phase/
+│   ├── 01-Problem-Definition.md
+│   ├── 02-Solution-Approach.md
+│   ├── 04-Target-Audience.md
+│   ├── 05-Benefits.md
+│   ├── 06-Financial-Considerations.md
+│   ├── 14-Future-Vision.md
+│   └── 15-Release-Timeline.md
+│
+├── mini-project/
+│   ├── 01-Problem-Definition.md
+│   ├── 02-Solution-Approach.md
+│   ├── 07-Workflow.md
+│   ├── 14-Future-Vision.md
+│   └── 15-Release-Timeline.md
+│
+├── feature-complete/
+│   ├── 00-Feature-Index.md
+│   ├── 01-Problem-Definition.md
+│   ... (all 15 files)
+│   └── 15-Release-Timeline.md
+│
+└── business-plan/
+    ├── executive-summary.md
+    ├── financial-overview.md
+    └── problems/
+        └── problem-template/
+            └── (all 15 files)
+```
+
+---
+
+### Progressive Disclosure Flow
+
+#### **Stage 1: Journal Entry (3 files)**
+
+User writes a journal entry about an idea, reflection, or discovery.
+
+```
+Journals/2026/05/entry-2026-05-25-garlic-benefits/
+├── entry.md              ← User writes content here
+├── meta.json             ← Auto-generated metadata
+└── summary.md            ← AI generates summary
+```
+
+**Files created:** 3  
+**Purpose:** Capture thoughts, no evaluation yet
+
+---
+
+#### **Stage 2: Evaluation Phase (7 files)**
+
+User or AI recognizes potential value. User approves **"Evaluate for Project"**.
+
+System creates `evaluation/` folder with key decision files:
+
+```
+Journals/2026/05/entry-2026-05-25-garlic-benefits/
+├── entry.md
+├── meta.json
+├── summary.md
+└── evaluation/           ← NEW FOLDER
+    ├── 01-Problem-Definition.md       ← AI extracts from journal
+    ├── 02-Solution-Approach.md        ← AI proposes approach
+    ├── 04-Target-Audience.md          ← "Who benefits?"
+    ├── 05-Benefits.md                 ← "Why pursue this?"
+    ├── 06-Financial-Considerations.md ← "What does it cost?"
+    ├── 14-Future-Vision.md            ← "Where could this go?"
+    └── 15-Release-Timeline.md         ← "When to start?"
+```
+
+**Files created:** 7 additional  
+**Purpose:** Determine if this warrants project status  
+**AI behavior:** Agent reads journal, extracts problem/solution context, pre-fills evaluation files  
+**User approval required:** Yes - agent asks permission to go deeper into opportunity analysis
+
+---
+
+#### **Stage 3: Project Status (15 files)**
+
+User reviews evaluation and decides: **"Create Official Project"**.
+
+System creates full project structure:
+
+```
+projects/Garlic_Health_Research/
+├── README.md                    ← Project overview
+├── vision.md                    ← High-level goals
+├── strategic/
+│   ├── timeline.md
+│   ├── priorities.md
+│   └── resources.md
+│
+└── problems/
+    └── Problem-01-Health-Benefits/
+        ├── 00-Feature-Index.md              ← Links back to journal
+        ├── 01-Problem-Definition.md         ← Copied from evaluation
+        ├── 02-Solution-Approach.md          ← Copied from evaluation
+        ├── 03-Competitive-Analysis.md       ← NEW (template)
+        ├── 04-Target-Audience.md            ← Copied from evaluation
+        ├── 05-Benefits.md                   ← Copied from evaluation
+        ├── 06-Financial-Considerations.md   ← Copied from evaluation
+        ├── 07-Workflow.md                   ← NEW (template)
+        ├── 08-Functionalities.md            ← NEW (template)
+        ├── 09-Technology-Choices.md         ← NEW (template)
+        ├── 10-UI-Design.md                  ← NEW (template)
+        ├── 11-Attributes.md                 ← NEW (template)
+        ├── 12-Configuration-Parameters.md   ← NEW (template)
+        ├── 13-Modules-Implementation.md     ← NEW (template)
+        ├── 14-Future-Vision.md              ← Copied from evaluation
+        └── 15-Release-Timeline.md           ← Copied from evaluation
+```
+
+**Files created:** All 15 decision files  
+**Purpose:** Full project with comprehensive decision context  
+**Evaluation files:** Copied to project (not duplicated, moved)  
+**Journal link:** `00-Feature-Index.md` references original journal entry
+
+---
+
+#### **Stage 4: Output Generation (Business Plan, Book, etc.)**
+
+Project structure remains the same. **Outputs are generated FROM the project:**
+
+```
+projects/Garlic_Health_Research/
+├── ... (all project files)
+│
+└── outputs/
+    ├── business-plan/
+    │   ├── Business-Plan-v1.0.pdf
+    │   ├── executive-summary.md      ← Generated from project vision
+    │   ├── financial-projections.md  ← Generated from 06-Financial-Considerations
+    │   └── market-analysis.md        ← Generated from 03-Competitive-Analysis
+    │
+    ├── book-draft/
+    │   ├── Chapter-01-Introduction.md
+    │   ├── Chapter-02-Science.md
+    │   └── references.md
+    │
+    └── research-report/
+        └── Garlic-Health-Benefits-Report-2026.pdf
+```
+
+**Key insight:** Outputs are **generated artifacts** from project data, not separate structures.
+
+---
+
+### When to Use What Structure
+
+#### **Use Journal Entry (3 files) when:**
+- Daily reflection, notes, observations
+- Capturing ideas without commitment
+- Personal thoughts, emotional processing
+- Quick notes from conversations or reading
+
+**Example:** "Today I learned garlic has antimicrobial properties"
+
+---
+
+#### **Use Evaluation Phase (7 files) when:**
+- An idea shows potential but needs assessment
+- Uncertain if pursuit is worthwhile
+- Need structured analysis before committing resources
+- Want AI to help explore opportunity depth
+
+**Example:** "Garlic research might be valuable - let's evaluate if it warrants a project"
+
+**User approval:** Required before AI digs deeper into full context
+
+---
+
+#### **Use Mini Project (5-7 files) when:**
+- Small personal projects (learning a skill, home improvement)
+- Quick builds (tools, scripts, small apps)
+- Projects with limited scope and clear end date
+- No need for competitive analysis or complex workflows
+
+**Example:** "Build a garlic tracking app for personal use"
+
+**Files needed:** Problem, Solution, Workflow, Vision, Timeline
+
+---
+
+#### **Use Feature (15 files) when:**
+- Building technical capabilities for the application
+- Need comprehensive decision context to avoid blind spots
+- Will be maintained and extended over time
+- Requires technology choices, configuration, implementation details
+
+**Example:** "Chunking feature for me_workspace"
+
+**Files needed:** All 15 - this is active development requiring full context
+
+---
+
+#### **Use Business Plan (15+ files) when:**
+- Seeking funding or strategic partnerships
+- Need financial projections and market analysis
+- Building for commercial viability
+- Stakeholders require comprehensive documentation
+
+**Example:** "Garlic health supplement business"
+
+**Files needed:** All 15 + executive summary + financial overview
+
+---
+
+#### **Use Book Project (15+ files) when:**
+- Long-form content creation (book, course, comprehensive guide)
+- Each problem = chapter or major section
+- Need chapter structure, narrative flow, publication timeline
+- Audience research and market positioning required
+
+**Example:** "The Complete Guide to Garlic for Health"
+
+**Files needed:** All 15 per chapter + preface + publication plan
+
+---
+
+### Template Application Logic
+
+#### **Code Example: Promotion Flow**
+
+```csharp
+// JournalPromotionService.cs
+public async Task<string> PromoteToEvaluationAsync(Guid journalId)
+{
+    var journal = await _context.Journals.FindAsync(journalId);
+    var evaluationPath = Path.Combine(journal.FolderPath, "evaluation");
+    
+    // Copy evaluation template
+    var templatePath = "C:/me_workspace/templates/evaluation-phase";
+    await CopyTemplateAsync(templatePath, evaluationPath);
+    
+    // Pre-fill with AI analysis
+    var context = await _aiService.AnalyzeJournalForEvaluationAsync(journal.Content);
+    
+    await PreFillTemplateAsync(evaluationPath, "01-Problem-Definition.md", context.Problem);
+    await PreFillTemplateAsync(evaluationPath, "02-Solution-Approach.md", context.Solution);
+    await PreFillTemplateAsync(evaluationPath, "04-Target-Audience.md", context.Audience);
+    
+    journal.Status = JournalStatus.UnderEvaluation;
+    await _context.SaveChangesAsync();
+    
+    return evaluationPath;
+}
+
+public async Task<string> PromoteToProjectAsync(Guid journalId, string projectName)
+{
+    var journal = await _context.Journals.FindAsync(journalId);
+    var evaluationPath = Path.Combine(journal.FolderPath, "evaluation");
+    
+    // Create project structure
+    var projectPath = $"C:/me_workspace/projects/{projectName}";
+    var problemPath = Path.Combine(projectPath, "problems", "Problem-01");
+    
+    Directory.CreateDirectory(problemPath);
+    
+    // Copy complete template
+    var templatePath = "C:/me_workspace/templates/feature-complete";
+    await CopyTemplateAsync(templatePath, problemPath);
+    
+    // Copy evaluation files to project (preserving user edits)
+    await CopyFileAsync(
+        Path.Combine(evaluationPath, "01-Problem-Definition.md"),
+        Path.Combine(problemPath, "01-Problem-Definition.md")
+    );
+    
+    // ... copy other evaluation files
+    
+    // Create backlink
+    var indexContent = $"# Feature Index\n\n**Originated from:** [Journal Entry]({journal.FolderPath}/entry.md)\n";
+    await File.WriteAllTextAsync(Path.Combine(problemPath, "00-Feature-Index.md"), indexContent);
+    
+    journal.Status = JournalStatus.PromotedToProject;
+    journal.PromotedProjectName = projectName;
+    await _context.SaveChangesAsync();
+    
+    return projectPath;
+}
+```
+
+---
+
+### AI Agent Behavior by Stage
+
+#### **Journal Stage:**
+```
+Agent reads: entry.md (1 file)
+Agent looks for: Keywords, themes, potential value signals
+Agent suggests: "This looks like it could be evaluated. Would you like me to assess it?"
+```
+
+#### **Evaluation Stage:**
+```
+Agent reads: entry.md + evaluation/*.md (8 files)
+Agent analyzes: Problem clarity, solution viability, audience fit, resource requirements
+Agent suggests: "This evaluation shows strong potential. Ready to create a project?"
+```
+
+#### **Project Stage:**
+```
+Agent reads: All 15 files when doing comprehensive analysis
+Agent reads: Specific files (e.g., 09-Technology-Choices.md) when answering focused questions
+Agent suggests: "Based on your current priorities, should we move this to active development?"
+```
+
+**Key insight:** AI doesn't load all 15 files unless doing full evaluation. For specific questions, it reads only relevant files.
+
+---
+
+### Visibility & Discoverability
+
+#### **In VS Code File Explorer:**
+
+**Journal (Stage 1):**
+```
+📁 entry-2026-05-25-garlic-benefits
+  📄 entry.md
+  📄 meta.json
+  📄 summary.md
+```
+**Clean. Minimal. Focused.**
+
+**Journal (Stage 2 - Evaluation):**
+```
+📁 entry-2026-05-25-garlic-benefits
+  📄 entry.md
+  📄 meta.json
+  📄 summary.md
+  📁 evaluation/
+    📄 01-Problem-Definition.md
+    📄 02-Solution-Approach.md
+    📄 04-Target-Audience.md
+    📄 05-Benefits.md
+    📄 06-Financial-Considerations.md
+    📄 14-Future-Vision.md
+    📄 15-Release-Timeline.md
+```
+**Clear separation: original entry + evaluation context**
+
+**Project (Stage 3):**
+```
+📁 Garlic_Health_Research
+  📄 README.md
+  📄 vision.md
+  📁 strategic/
+  📁 problems/
+    📁 Problem-01-Health-Benefits/
+      📄 00-Feature-Index.md
+      📄 01-Problem-Definition.md
+      ... (all 15 files)
+      📄 15-Release-Timeline.md
+```
+**Complete structure for active project management**
+
+---
+
+### File System Cleanliness
+
+**What you WON'T see:**
+- ❌ Empty stub files marked "inactive"
+- ❌ Hundreds of unused templates cluttering journals
+- ❌ Metadata tracking which files are "active"
+- ❌ UI logic to hide/show files based on status
+
+**What you WILL see:**
+- ✅ Only files that have content or purpose
+- ✅ Clear progression: 3 files → 7 files → 15 files
+- ✅ Templates copied only when needed
+- ✅ Clean git history (only meaningful files tracked)
+
+---
+
+### Summary of Complexity Scaling
+
+| Stage             | Files | Purpose            | AI Reads  | User Effort            |
+| ----------------- | ----- | ------------------ | --------- | ---------------------- |
+| **Journal**       | 3     | Capture thoughts   | 1 file    | Write entry            |
+| **Evaluation**    | 7     | Assess potential   | 8 files   | Review AI analysis     |
+| **Mini Project**  | 5-7   | Quick builds       | 5-7 files | Fill key decisions     |
+| **Feature**       | 15    | Active development | 15 files  | Comprehensive planning |
+| **Business Plan** | 15+   | Strategic project  | 15+ files | Full business analysis |
+
+**Core principle:** Start simple (journal). Add structure when value is clear (evaluation). Use full structure when actively building (project).
+
+---
+
 ## Summary
 
 ### Key Principles
@@ -488,8 +913,9 @@ projects/Health-Book/
 1. **Encapsulation** - Everything about a problem in one folder
 2. **Consistency** - Same 15 files, every problem, every feature
 3. **Unix Philosophy** - Small files, clear purpose, AI-accessible
-4. **Conditional Visibility** - Structure accommodates all content types
-5. **Hierarchical** - Project → Problem → Solution → Feature → Module → Attribute
+4. **Progressive Disclosure** - Start simple, add structure on-demand
+5. **Template-Driven** - Files copied from templates when needed, not pre-created
+6. **Hierarchical** - Project → Problem → Solution → Feature → Module → Attribute
 
 ### File Hierarchy Recap
 

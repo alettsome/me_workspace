@@ -123,7 +123,7 @@ These capture the holistic view needed before building anything:
 
 ### Problem
 How do you manage:
-- Weekend painting project
+- Mini painting project
 - Book writing project  
 - Business plan for new service
 - Personal journal entries
@@ -156,16 +156,16 @@ Each project maintains its own problem/solution structure, but the strategic lay
 
 Every project has the **same underlying structure**, but sections are shown/hidden based on content type:
 
-| Section              | Journal | Weekend Project | Book | Business Plan |
-| -------------------- | ------- | --------------- | ---- | ------------- |
-| Executive Summary    | ❌       | ❌               | ✅    | ✅             |
-| Financial Analysis   | ❌       | ❌               | ❌    | ✅             |
-| Competitive Analysis | ❌       | ❌               | ✅    | ✅             |
-| Problem/Solution     | ✅       | ✅               | ✅    | ✅             |
-| Workflow             | ❌       | ✅               | ✅    | ✅             |
+| Section              | Journal | Mini Project | Book | Business Plan |
+| -------------------- | ------- | ------------ | ---- | ------------- |
+| Executive Summary    | ❌       | ❌            | ✅    | ✅             |
+| Financial Analysis   | ❌       | ❌            | ❌    | ✅             |
+| Competitive Analysis | ❌       | ❌            | ✅    | ✅             |
+| Problem/Solution     | ✅       | ✅            | ✅    | ✅             |
+| Workflow             | ❌       | ✅            | ✅    | ✅             |
 
 **Why?**  
-A weekend painting project doesn't need an executive summary *now*, but if it evolves into a painting service business, those sections become visible without restructuring.
+A mini painting project doesn't need an executive summary *now*, but if it evolves into a painting service business, those sections become visible without restructuring.
 
 ### Output Templates
 
